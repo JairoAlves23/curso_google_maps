@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'Mapa.dart';
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -8,12 +10,24 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<String> lugares = ["Fortaleza", "Rio de Janeiro", "São Paulo"];
 
+  _abrirMapa() {}
+
+  _adicionarLocal() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => Mapa()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Minhas viangens"),
+          title: Text("Minhas viagens"),
         ),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            backgroundColor: Color(0xff0066cc),
+            onPressed: () {
+              _adicionarLocal();
+            }),
         body: Column(
           children: <Widget>[
             Expanded(
