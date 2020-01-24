@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -22,6 +23,13 @@ class _MapaState extends State<Mapa> {
    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
    */
 
+  /* Instancia do firebase */
+
+  // 5º Passo: criação da fase de envio para firebase.
+  Firestore _db = Firestore.instance;
+
+  
+
   // 1º Passo: Complete para GoogleMapController
   Completer<GoogleMapController> _controller = Completer();
 
@@ -33,8 +41,8 @@ class _MapaState extends State<Mapa> {
   //3º Passo: Lista para os marcadores - markers: _marcadores,
   Set<Marker> _marcadores = {};
 
-  //3º Passo: cria os marcadores no mapa ao chamar onLongPress no mapa onLongPress: _exibirMarcador,
-  _exibirMarcador(LatLng latLng) async {
+  //3º Passo: cria os marcadores no mapa ao chamar onLongPress no mapa onLongPress: _adicionarMarcador,
+  _adicionarMarcador(LatLng latLng) async {
     List<Placemark> listaEnderecos = await Geolocator()
         .placemarkFromCoordinates(latLng.latitude, latLng.longitude);
 
@@ -49,6 +57,15 @@ class _MapaState extends State<Mapa> {
 
       setState(() {
         _marcadores.add(marcador);
+
+        // 5º Passo: criação da fase de envio para firebase.
+        // Cria um map do marcador da viagem para firebase
+        Map<String,dynamic> viagem = Map();
+        viagem["titulo"] = rua;
+        viagem["latitude"] = latLng.latitude;
+        viagem["longitude"] = latLng.longitude;
+        _db.collection("viagens").add(viagem);
+
       });
     }
   }
@@ -82,6 +99,8 @@ class _MapaState extends State<Mapa> {
     });
   }
 
+
+
   @override
   void initState() {
     super.initState();
@@ -90,6 +109,11 @@ class _MapaState extends State<Mapa> {
     _adicionarListenerLocalizacao();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _movimentaCamera();
+  }
  
   @override
   Widget build(BuildContext context) {
@@ -103,7 +127,7 @@ class _MapaState extends State<Mapa> {
             mapType: MapType.normal,
             initialCameraPosition: _posicaoCamera,
             onMapCreated: _onMapCreated,
-            onLongPress: _exibirMarcador,
+            onLongPress: _adicionarMarcador,
           ),
         ));
   }
